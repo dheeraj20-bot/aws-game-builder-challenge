@@ -1,101 +1,173 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import { GameBoard } from "../components/GameBoard";
+import { Dice } from "../components/Dice";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Trophy, LocateIcon } from "lucide-react";
+const board = [
+  { id: 1, service: "IAM", type: "normal", icon: "cloud" },
+  { id: 2, service: "EC2", type: "normal", icon: "server" },
+  { id: 3, service: "S3", type: "normal", icon: "database" },
+  { id: 4, service: "VPC", type: "normal", icon: "cloud" },
+  { id: 5, service: "RDS", type: "ladder", icon: "database", destination: 15 },
+  { id: 6, service: "Route 53", type: "normal", icon: "cloud" },
+  { id: 7, service: "CloudFront", type: "normal", icon: "cloud" },
+  {
+    id: 8,
+    service: "CloudWatch",
+    type: "snake",
+    icon: "cloud",
+    destination: 4,
+  },
+  { id: 9, service: "CloudFormation", type: "normal", icon: "cloud" },
+  {
+    id: 10,
+    service: "Cloud Practitioner",
+    type: "certification",
+    icon: "award",
+  },
+  { id: 11, service: "ELB", type: "normal", icon: "cloud" },
+  { id: 12, service: "Auto Scaling", type: "normal", icon: "server" },
+  {
+    id: 13,
+    service: "Lambda",
+    type: "ladder",
+    icon: "server",
+    destination: 23,
+  },
+  { id: 14, service: "API Gateway", type: "normal", icon: "cloud" },
+  { id: 15, service: "DynamoDB", type: "normal", icon: "database" },
+  { id: 16, service: "SNS", type: "normal", icon: "cloud" },
+  { id: 17, service: "SQS", type: "snake", icon: "cloud", destination: 7 },
+  { id: 18, service: "Elastic Beanstalk", type: "normal", icon: "cloud" },
+  { id: 19, service: "ECS", type: "normal", icon: "server" },
+  {
+    id: 20,
+    service: "Developer Associate",
+    type: "certification",
+    icon: "award",
+  },
+  { id: 21, service: "CodeCommit", type: "normal", icon: "cloud" },
+  { id: 22, service: "CodeBuild", type: "normal", icon: "cloud" },
+  { id: 23, service: "CodeDeploy", type: "normal", icon: "cloud" },
+  {
+    id: 24,
+    service: "CodePipeline",
+    type: "ladder",
+    icon: "cloud",
+    destination: 29,
+  },
+  { id: 25, service: "CloudTrail", type: "normal", icon: "cloud" },
+  {
+    id: 26,
+    service: "Systems Manager",
+    type: "snake",
+    icon: "server",
+    destination: 12,
+  },
+  { id: 27, service: "Secrets Manager", type: "normal", icon: "database" },
+  { id: 28, service: "Config", type: "normal", icon: "cloud" },
+  { id: 29, service: "GuardDuty", type: "normal", icon: "cloud" },
+  { id: 30, service: "DevOps Engineer", type: "certification", icon: "award" },
+];
+
+export default function AWSSnakeAndLadders() {
+  const [playerPosition, setPlayerPosition] = useState(1);
+  const [gameOver, setGameOver] = useState(false);
+  const { toast } = useToast();
+
+  const handleDiceRoll = (value: number) => {
+    if (gameOver) return;
+
+    let newPosition = playerPosition + value;
+    if (newPosition > 30) newPosition = 30;
+
+    const space = board.find((s) => s.id === newPosition);
+    if (space) {
+      if (space.type === "ladder") {
+        toast({
+          title: "Fast-track!",
+          description: `You've mastered ${space.service}! Advance to ${
+            board.find((s) => s.id === space.destination)?.service
+          }.`,
+        });
+        newPosition = space.destination!;
+      } else if (space.type === "snake") {
+        toast({
+          title: "Setback!",
+          description: `Oops! You need to review ${space.service}. Go back to ${
+            board.find((s) => s.id === space.destination)?.service
+          }.`,
+        });
+        newPosition = space.destination!;
+      } else if (space.type === "certification") {
+        toast({
+          title: "Certification Milestone!",
+          description: `Congratulations! You've reached the ${space.service} certification!`,
+        });
+      } else {
+        toast({
+          title: `AWS Service: ${space.service}`,
+          description: `You've learned about ${space.service}. Keep climbing!`,
+        });
+      }
+      setPlayerPosition(newPosition);
+    }
+
+    if (newPosition === 30) {
+      setGameOver(true);
+      toast({
+        title: "Congratulations!",
+        description: "You've become an AWS DevOps Engineer!",
+      });
+    }
+  };
+
+  const resetGame = () => {
+    setPlayerPosition(1);
+    setGameOver(false);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <section>
+      <div className="min-h-screen bg-gray-900 flex flex-col gap-10 md:flex-row items-center ">
+        <div className="mb-8 w-full max-w-4xl">
+          <GameBoard playerPosition={playerPosition} />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+           
+       
+        <div className="bg-gray-800 p-4 rounded-lg shadow-md">
+          <div className="flex items-center justify-center mb-2">
+            <span className="text-lg font-medium text-white">
+              {playerPosition}/30{" "}
+              
+            </span>
+           
+          </div>
+          {!gameOver ? (
+            <div className="flex flex-col items-center">
+              <Dice onRoll={handleDiceRoll} />
+              <p className="text-sm text-gray-400 mt-2">Roll to learn more!</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <Trophy className="text-yellow-500 mb-2" size={48} />
+              <p className="text-white text-center mb-2">
+                You've mastered AWS!
+              </p>
+              <Button size="sm" onClick={resetGame}>
+                Play Again
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white p-4 rounded-lg shadow-md">
+        {board.find((s) => s.id === playerPosition)?.service}
+        </div>
+      </div>
+    </section>
   );
 }
