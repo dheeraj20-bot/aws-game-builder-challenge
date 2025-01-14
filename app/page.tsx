@@ -6,6 +6,7 @@ import { Dice } from "../components/Dice";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Trophy, LocateIcon } from "lucide-react";
+
 const board = [
   { id: 1, service: "IAM", type: "normal", icon: "cloud" },
   { id: 2, service: "EC2", type: "normal", icon: "server" },
